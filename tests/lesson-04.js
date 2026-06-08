@@ -65,10 +65,10 @@ test("useRef is imported from React", () => {
   );
 });
 
-test("useEffect is imported from React", () => {
+test("Refs are declared for all three inputs and the success message", () => {
   assert(
-    form && form.includes("useEffect"),
-    "useEffect is not imported — add it to the React import",
+    form && form.includes("successRef"),
+    "successRef not found — declare a useRef for the success message div",
   );
 });
 
@@ -87,17 +87,17 @@ test("Refs are declared for all three inputs", () => {
   );
 });
 
-test("A ref is declared for the success message", () => {
+test("handleSubmit checks validity.valid to find the first invalid field", () => {
   assert(
-    form && form.includes("successRef"),
-    "successRef not found — declare a useRef for the success message container",
+    form && form.includes("validity.valid"),
+    "validity.valid not found — use ref.current?.validity.valid to check each field, not the errors state",
   );
 });
 
-test("The success message container has tabIndex={-1}", () => {
+test("The success message has tabIndex={-1}", () => {
   assert(
     form && form.includes("tabIndex={-1}"),
-    'tabIndex={-1} not found — add it to the success message div so it can receive programmatic focus',
+    'tabIndex={-1} not found — add it to the success div so it can receive programmatic focus',
   );
 });
 

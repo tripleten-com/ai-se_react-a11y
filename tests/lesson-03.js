@@ -66,7 +66,28 @@ test("All three error spans have aria-live='polite'", () => {
   );
 });
 
-test("aria-live regions are present in the rendered form", () => {
+test("useEffect is imported from React", () => {
+  assert(
+    form && form.includes("useEffect"),
+    "useEffect is not imported — add it to the React import",
+  );
+});
+
+test("A setTimeout is used to debounce the error display", () => {
+  assert(
+    form && form.includes("setTimeout"),
+    "setTimeout not found — add a useEffect that delays surfacing errors by 500ms",
+  );
+});
+
+test("A debouncedErrors state is declared", () => {
+  assert(
+    form && form.includes("debouncedErrors"),
+    "debouncedErrors not found — add a separate state for the debounced error values",
+  );
+});
+
+test("aria-live regions and debounced errors behave correctly", () => {
   const result = checkBehavior(root, "tests/lib/lesson-03.behavior.test.tsx");
   assert(
     result.ok,

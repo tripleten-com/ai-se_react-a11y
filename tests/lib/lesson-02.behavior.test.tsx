@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect } from "vitest";
 import RegisterForm from "../../src/components/RegisterForm/RegisterForm";
 
-describe("Lesson 01 — ARIA attributes on form fields", () => {
+describe("Lesson 02 — ARIA attributes and autocomplete on form fields", () => {
   it("error spans are always present in the DOM, even before any input", () => {
     render(<RegisterForm />);
     expect(document.getElementById("name-error")).toBeInTheDocument();
@@ -26,5 +26,12 @@ describe("Lesson 01 — ARIA attributes on form fields", () => {
     await user.type(nameInput, "A");
     await user.clear(nameInput);
     expect(nameInput).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("inputs have correct autocomplete values", () => {
+    render(<RegisterForm />);
+    expect(screen.getByLabelText(/name/i)).toHaveAttribute("autocomplete", "name");
+    expect(screen.getByLabelText(/email/i)).toHaveAttribute("autocomplete", "email");
+    expect(screen.getByLabelText(/password/i)).toHaveAttribute("autocomplete", "new-password");
   });
 });
