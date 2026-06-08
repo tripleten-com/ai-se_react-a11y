@@ -12,8 +12,7 @@
     "test:l1": "node tests/lesson-01.js",
     "test:l2": "node tests/lesson-02.js",
     "test:l3": "node tests/lesson-03.js",
-    "test:l4": "node tests/lesson-04.js",
-    "test:l5": "node tests/lesson-05.js"
+    "test:l4": "node tests/lesson-04.js"
   },
   "dependencies": {
     "react": "^18.3.1",

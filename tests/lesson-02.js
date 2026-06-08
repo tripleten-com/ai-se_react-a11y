@@ -116,6 +116,21 @@ test("Error spans are always present in the DOM (not conditionally rendered)", (
   );
 });
 
+test("Inputs have correct autoComplete values", () => {
+  assert(
+    form && form.includes('autoComplete="name"'),
+    'autocomplete="name" not found on the name input',
+  );
+  assert(
+    form && form.includes('autoComplete="email"'),
+    'autocomplete="email" not found on the email input',
+  );
+  assert(
+    form && form.includes('autoComplete="new-password"'),
+    'autocomplete="new-password" not found on the password input — use "new-password" on registration forms',
+  );
+});
+
 test("ARIA attributes behave correctly in the rendered form", () => {
   const result = checkBehavior(root, "tests/lib/lesson-02.behavior.test.tsx");
   assert(

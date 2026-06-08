@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useFormWithValidation } from "../../hooks/useFormWithValidation";
 import "./RegisterForm.css";
 
@@ -10,49 +10,14 @@ export default function RegisterForm() {
   });
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const nameRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const successRef = useRef<HTMLDivElement>(null);
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isValid) {
-      if (!nameRef.current?.validity.valid) {
-        nameRef.current?.focus();
-      } else if (!emailRef.current?.validity.valid) {
-        emailRef.current?.focus();
-      } else if (!passwordRef.current?.validity.valid) {
-        passwordRef.current?.focus();
-      }
-      return;
-    }
+    if (!isValid) return;
     setSubmitSuccess(true);
   };
 
-  const [debouncedErrors, setDebouncedErrors] = useState<
-    Record<string, string>
-  >({});
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedErrors(errors);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [errors]);
-
-  useEffect(() => {
-    if (submitSuccess) {
-      successRef.current?.focus();
-    }
-  }, [submitSuccess]);
-
   if (submitSuccess) {
-    return (
-      <div ref={successRef} className="form__success" tabIndex={-1}>
-        Registration successful!
-      </div>
-    );
+    return <div className="form__success">Registration successful!</div>;
   }
 
   return (
@@ -73,13 +38,12 @@ export default function RegisterForm() {
           maxLength={40}
           value={values.name}
           onChange={handleChange}
-          aria-invalid={debouncedErrors.name ? "true" : "false"}
+          aria-invalid={errors.name ? "true" : "false"}
           aria-describedby="name-error"
           autoComplete="name"
-          ref={nameRef}
         />
-        <span className="form__error" id="name-error" aria-live="polite">
-          {debouncedErrors.name}
+        <span className="form__error" id="name-error">
+          {errors.name}
         </span>
       </div>
 
@@ -95,13 +59,12 @@ export default function RegisterForm() {
           required
           value={values.email}
           onChange={handleChange}
-          aria-invalid={debouncedErrors.email ? "true" : "false"}
+          aria-invalid={errors.email ? "true" : "false"}
           aria-describedby="email-error"
           autoComplete="email"
-          ref={emailRef}
         />
-        <span className="form__error" id="email-error" aria-live="polite">
-          {debouncedErrors.email}
+        <span className="form__error" id="email-error">
+          {errors.email}
         </span>
       </div>
 
@@ -118,13 +81,12 @@ export default function RegisterForm() {
           minLength={8}
           value={values.password}
           onChange={handleChange}
-          aria-invalid={debouncedErrors.password ? "true" : "false"}
+          aria-invalid={errors.password ? "true" : "false"}
           aria-describedby="password-error"
           autoComplete="new-password"
-          ref={passwordRef}
         />
-        <span className="form__error" id="password-error" aria-live="polite">
-          {debouncedErrors.password}
+        <span className="form__error" id="password-error">
+          {errors.password}
         </span>
       </div>
 
