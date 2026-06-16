@@ -1,7 +1,14 @@
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import { checkCompiles, checkBuilds, checkBehavior, normalize } from "./lib/utils.js";
+import {
+  checkCompiles,
+  checkBuilds,
+  checkBehavior,
+  normalize,
+  parseFileContent,
+  findQuerySelector,
+} from "./lib/utils.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, "..");
@@ -53,13 +60,22 @@ if (!built.ok) {
 console.log("✅ App builds and runs without errors\n");
 
 const form = read("src/components/RegisterForm/RegisterForm.tsx");
+const formAst = parseFileContent(
+  join(root, "src/components/RegisterForm/RegisterForm.tsx"),
+);
 
 test("RegisterForm.tsx exists", () => {
   assert(form !== null, "src/components/RegisterForm/RegisterForm.tsx not found");
 });
 
 test("All three error spans have aria-live='polite'", () => {
-  const matches = (form.match(/aria-live="polite"/g) || []).length;
+  const els = findQuerySelector(
+    formAst,
+    'JSXOpeningElement[name.name="span"] JSXAttribute[name.name="aria-live"]',
+  );
+  const matches = els.filter(
+    (attr) => attr?.value?.type === "StringLiteral" && attr.value.value === "polite",
+  ).length;
   assert(
     matches >= 3,
     `Expected aria-live="polite" on all three error spans — found ${matches} instance(s)`,
@@ -67,22 +83,31 @@ test("All three error spans have aria-live='polite'", () => {
 });
 
 test("useEffect is imported from React", () => {
+  const el = findQuerySelector(
+    formAst,
+    'ImportDeclaration[source.value="react"] ImportSpecifier[imported.name="useEffect"]',
+  );
   assert(
-    form && form.includes("useEffect"),
+    el.length > 0,
     "useEffect is not imported — add it to the React import",
   );
 });
 
 test("A setTimeout is used to debounce the error display", () => {
+  const el = findQuerySelector(formAst, 'Identifier[name="setTimeout"]');
   assert(
-    form && form.includes("setTimeout"),
+    el.length > 0,
     "setTimeout not found — add a useEffect that delays surfacing errors by 500ms",
   );
 });
 
 test("A debouncedErrors state is declared", () => {
+  const el = findQuerySelector(
+    formAst,
+    'Identifier[name="debouncedErrors"]',
+  );
   assert(
-    form && form.includes("debouncedErrors"),
+    el.length > 0,
     "debouncedErrors not found — add a separate state for the debounced error values",
   );
 });
