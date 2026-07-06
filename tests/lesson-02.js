@@ -6,6 +6,8 @@ import {
   checkBuilds,
   checkBehavior,
   normalize,
+  parseFileContent,
+  findQuerySelector,
 } from "./lib/utils.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -58,6 +60,16 @@ if (!built.ok) {
 console.log("✅ App builds and runs without errors\n");
 
 const form = read("src/components/RegisterForm/RegisterForm.tsx");
+const formAst = parseFileContent(join(root, "src/components/RegisterForm/RegisterForm.tsx"));
+
+function hasStringLiteralAttribute(openingEl, attrName, expectedValue) {
+  const attrs = openingEl?.attributes || [];
+  const attr = attrs.find(
+    (a) => a?.type === "JSXAttribute" && a?.name?.name === attrName,
+  );
+  if (!attr || attr.value?.type !== "StringLiteral") return false;
+  return attr.value.value === expectedValue;
+}
 
 test("RegisterForm.tsx exists", () => {
   assert(
@@ -67,42 +79,66 @@ test("RegisterForm.tsx exists", () => {
 });
 
 test("Inputs have aria-invalid set conditionally on the error state", () => {
-  assert(
-    form && form.includes("aria-invalid"),
-    "aria-invalid not found — add it to each input, set to 'true' when an error is present",
+  const el = findQuerySelector(
+    formAst,
+    'JSXOpeningElement[name.name="input"] JSXAttribute[name.name="aria-invalid"]',
   );
   assert(
-    form && form.includes("errors."),
+    el.length > 0,
+    "aria-invalid not found — add it to each input, set to 'true' when an error is present",
+  );
+
+  const el2 = el.some(
+    (attr) => findQuerySelector(attr, 'Identifier[name="errors"]').length > 0,
+  );
+  assert(
+    !!el2,
     "aria-invalid does not appear to reference the errors state",
   );
 });
 
 test("Error spans have unique IDs (name-error, email-error, password-error)", () => {
+  const idAttrs = findQuerySelector(
+    formAst,
+    'JSXOpeningElement[name.name="span"] JSXAttribute[name.name="id"]',
+  );
+  const ids = idAttrs
+    .map((attr) => (attr?.value?.type === "StringLiteral" ? attr.value.value : null))
+    .filter(Boolean);
   assert(
-    form && form.includes('id="name-error"'),
+    ids.includes("name-error"),
     'id="name-error" not found on the name error span',
   );
   assert(
-    form && form.includes('id="email-error"'),
+    ids.includes("email-error"),
     'id="email-error" not found on the email error span',
   );
   assert(
-    form && form.includes('id="password-error"'),
+    ids.includes("password-error"),
     'id="password-error" not found on the password error span',
   );
 });
 
 test("Inputs reference their error span via aria-describedby", () => {
+  const el = findQuerySelector(
+    formAst,
+    'JSXOpeningElement[name.name="input"] JSXAttribute[name.name="aria-describedby"]',
+  );
+  const elValues = el
+    .map((attr) =>
+      attr?.value?.type === "StringLiteral" ? attr.value.value : null,
+    )
+    .filter(Boolean);
   assert(
-    form && form.includes('aria-describedby="name-error"'),
+    elValues.includes("name-error"),
     'aria-describedby="name-error" not found on the name input',
   );
   assert(
-    form && form.includes('aria-describedby="email-error"'),
+    elValues.includes("email-error"),
     'aria-describedby="email-error" not found on the email input',
   );
   assert(
-    form && form.includes('aria-describedby="password-error"'),
+    elValues.includes("password-error"),
     'aria-describedby="password-error" not found on the password input',
   );
 });
@@ -110,23 +146,54 @@ test("Inputs reference their error span via aria-describedby", () => {
 test("Error spans are always present in the DOM (not conditionally rendered)", () => {
   // The starting code uses {errors.name && <span>...} — this check
   // fails if that pattern still exists for name, email, or password.
+  const el = findQuerySelector(formAst, 'LogicalExpression[operator="&&"]');
+  const el2 = el.some((expr) => {
+    const left = expr.left;
+    if (left?.type !== "MemberExpression") return false;
+    if (left.object?.type !== "Identifier" || left.object.name !== "errors") return false;
+
+    const propName =
+      left.property?.type === "Identifier"
+        ? left.property.name
+        : left.property?.type === "StringLiteral"
+          ? left.property.value
+          : null;
+    if (!["name", "email", "password"].includes(propName)) return false;
+
+    const right = expr.right;
+    return (
+      right?.type === "JSXElement" ||
+      right?.type === "JSXFragment" ||
+      right?.type === "ParenthesizedExpression"
+    );
+  });
   assert(
-    form && !/(errors\.(name|email|password)\s*&&\s*[(<])/.test(form),
+    !el2,
     "Error spans are still conditionally rendered — remove the && short-circuit and render the span unconditionally",
   );
 });
 
 test("Inputs have correct autoComplete values", () => {
+  const inputEls = findQuerySelector(formAst, 'JSXOpeningElement[name.name="input"]');
+  const name = inputEls.some((el) =>
+    hasStringLiteralAttribute(el, "autoComplete", "name"),
+  );
+  const email = inputEls.some((el) =>
+    hasStringLiteralAttribute(el, "autoComplete", "email"),
+  );
+  const newPwd = inputEls.some((el) =>
+    hasStringLiteralAttribute(el, "autoComplete", "new-password"),
+  );
   assert(
-    form && form.includes('autoComplete="name"'),
+    name,
     'autocomplete="name" not found on the name input',
   );
   assert(
-    form && form.includes('autoComplete="email"'),
+    email,
     'autocomplete="email" not found on the email input',
   );
   assert(
-    form && form.includes('autoComplete="new-password"'),
+    newPwd,
     'autocomplete="new-password" not found on the password input — use "new-password" on registration forms',
   );
 });
