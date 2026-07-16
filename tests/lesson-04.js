@@ -68,7 +68,7 @@ test("RegisterForm.tsx exists", () => {
   assert(form !== null, "src/components/RegisterForm/RegisterForm.tsx not found");
 });
 
-test("useRef is imported from React", () => {
+test("RegisterForm.tsx imports useRef from React", () => {
   const el = findQuerySelector(
     formAst,
     'ImportDeclaration[source.value="react"] ImportSpecifier[imported.name="useRef"]',
@@ -111,7 +111,7 @@ test("handleSubmit checks validity.valid to find the first invalid field", () =>
     'OptionalMemberExpression[property.name="valid"][object.property.name="validity"]',
   );
   assert(
-    el.length > 0,
+    el.length >= 3,
     "validity.valid not found — use ref.current?.validity.valid to check each field, not the errors state",
   );
 });
@@ -130,6 +130,20 @@ test("The success message has tabIndex={-1}", () => {
         attr.value.expression.argument?.value === 1,
     ),
     'tabIndex={-1} not found — add it to the success div so it can receive programmatic focus',
+  );
+});
+
+test("useEffect focuses the success div when submitSuccess becomes true", () => {
+  const el = findQuerySelector(formAst, 'CallExpression[callee.name="useEffect"]');
+  assert(
+    el.some(
+      (call) =>
+        findQuerySelector(
+          call,
+          'ArrayExpression Identifier[name="submitSuccess"]',
+        ).length > 0,
+    ),
+    "useEffect not found — use a useEffect to focus the success div when submitSuccess becomes true",
   );
 });
 
