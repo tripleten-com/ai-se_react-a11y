@@ -1,95 +1,83 @@
+.app .form {
+  margin: 15vh auto 0;
+}
+
 .form {
-  background-color: rgb(255 255 255);
-  border: 1px solid rgb(220 220 230);
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
-  padding: 2rem;
+  background-color: #fff;
+  border: solid 1px #f7f6f1;
+  max-width: 498px;
   width: 100%;
-  max-width: 420px;
+  border-radius: 20px;
+  padding: 32px;
+  color: #0a0a0a;
 }
 
 .form__title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin: 0 0 1.5rem;
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0 0 32px;
 }
 
 .form__field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1rem;
+  margin: 0 0 24px;
 }
 
 .form__label {
-  font-size: 0.875rem;
-  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  color: #0a0a0a80;
+  font-size: 13px;
 }
 
 .form__input {
-  border: 1px solid rgb(200 200 210);
-  border-radius: 6px;
-  font-size: 1rem;
-  padding: 0.5rem 0.75rem;
+  font-size: 16px;
+  padding: 14.5px 16px;
+  border: 1px solid #f3f1e9;
+  border-radius: 8px;
+  margin: 8px 0 0;
   width: 100%;
+}
+
+.form__input::placeholder {
+  color: #0a0a0a80;
 }
 
 .form__input:focus {
-  border-color: rgb(150 121 217);
-  outline: 2px solid rgb(150 121 217 / 0.3);
-  outline-offset: 0;
+  outline: 1px solid #3b82f6;
+  caret-color: #3b82f6;
 }
 
 .form__error {
-  color: rgb(200 40 40);
-  font-size: 0.8rem;
-  min-height: 1.2em;
+  color: #ef4444;
+  font-size: 12px;
+  line-height: 1.4;
+  margin: 12px 0 0;
+}
+
+.form__input-container .form__error {
+  margin: 8px 0 0;
 }
 
 .form__submit {
-  background-color: rgb(150 121 217);
+  margin: 8px 0 0;
+  max-width: fit-content;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
-  color: rgb(255 255 255);
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  margin-top: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  width: 100%;
+  padding: 12px 24px;
+  background-color: #0a0a0a;
+  color: #fff;
 }
 
-.form__submit:hover {
-  background-color: rgb(130 101 197);
+.form__submit:disabled {
+  background-color: rgb(0 0 0 / 0.1);
+  color: #0a0a0a80;
 }
 
-.form__submit:focus-visible {
-  outline: 2px solid rgb(150 121 217);
-  outline-offset: 2px;
-}
-
-.form__password-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.form__password-toggle {
-  background: none;
-  border: 1px solid rgb(200 200 210);
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  padding: 0.4rem 0.6rem;
-  flex-shrink: 0;
+.form__message {
+  display: block;
+  margin-top: 12px;
 }
 
 .form__success {
-  background-color: rgb(230 250 235);
-  border: 1px solid rgb(100 200 120);
-  border-radius: 8px;
-  color: rgb(20 100 40);
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 1.25rem 1.5rem;
+  margin: 30vh auto 0;
 }
