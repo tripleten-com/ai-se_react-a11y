@@ -93,6 +93,30 @@ test("useEffect is imported from React", () => {
   );
 });
 
+test("useEffect is not called conditionally", () => {
+  const fn = findQuerySelector(
+    formAst,
+    'FunctionDeclaration[id.name="RegisterForm"]',
+  )[0];
+  const nestedFns = findQuerySelector(
+    fn,
+    "ArrowFunctionExpression,FunctionExpression,FunctionDeclaration",
+  ).filter((n) => n !== fn);
+  const inNested = (node) =>
+    nestedFns.some((nf) => node.start > nf.start && node.end < nf.end);
+
+  const el = findQuerySelector(fn, 'CallExpression[callee.name="useEffect"]').filter(
+    (n) => !inNested(n),
+  );
+  const returns = findQuerySelector(fn, "ReturnStatement").filter((n) => !inNested(n));
+
+  assert(
+    el.length > 0 &&
+    el.every((effect) => !returns.some((ret) => ret.start < effect.start)),
+    "useEffect is called conditionally — move it above any early returns so hooks run in the same order every render",
+  );
+});
+
 test("A setTimeout is used to debounce the error display", () => {
   const el = findQuerySelector(formAst, 'Identifier[name="setTimeout"]');
   assert(
